@@ -1,11 +1,17 @@
 # Project Description
 
-A brief description of what this repository is for and what it contains. Chris is dumb. 
+Description last updated 02/05/2020.
+
+This repository contains the scripts necessary to complete Project 1 in BF528 at Boston University. 
 
 # Contributors
 
-List contributor names and github user names, or email addresses if desired
+Data Curator: Cody Webb (@cody-webb)
+Programmer: Yueh-Ting Wang (@yuehcode)
+Analyst: Chris Lin (@chrislin-afk)
 
 # Repository Contents
 
 Provide a brief description of each script/code file in this repo, what it does, and how to execute it
+
+This is TBD as we are unsure how much of this repository will be used at the moment. 
