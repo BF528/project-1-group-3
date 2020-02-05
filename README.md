@@ -6,8 +6,8 @@ This repository contains the scripts necessary to complete Project 1 in BF528 at
 
 # Contributors
 
-Data Curator: Cody Webb (@cody-webb)
-Programmer: Yueh-Ting Wang (@yuehcode)
+Data Curator: Cody Webb (@cody-webb) \n
+Programmer: Yueh-Ting Wang (@yuehcode) \n
 Analyst: Chris Lin (@chrislin-afk)
 
 # Repository Contents
