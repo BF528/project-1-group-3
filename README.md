@@ -1,6 +1,6 @@
 # Project Description
 
-A brief description of what this repository is for and what it contains
+A brief description of what this repository is for and what it contains. Chris is dumb. 
 
 # Contributors
 
