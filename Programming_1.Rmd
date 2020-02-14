@@ -1,0 +1,133 @@
+---
+title: "Project_1"
+author: "Chris Lin"
+date: "2/5/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load packages
+
+
+```{r 1}
+library(affy)
+library(affyPLM)
+library(sva)
+library(AnnotationDbi)
+library(hgu133plus2.db)
+library(ggfortify)
+
+```
+
+## Read CEL files from path and normalize
+
+
+```{r 2}
+data <- ReadAffy(celfile.path = './samples/CELfiles', compress=TRUE)
+data_norm <- rma(data)
+```
+
+## Compute RLE and NUSE and plot
+
+```{r 63}
+Pset <- fitPLM(data, normalize = TRUE, background = TRUE)
+```
+
+
+
+```{r 3}
+RLE_median <- RLE(Pset,type='stats') 
+RLE_median <- data.frame(RLE_median)
+RLE_median <- RLE_median[-c(2),]
+RLE_median <- as.numeric(RLE_median[1,])
+hist(RLE_median)
+```
+```{r 4}
+NUSE_median <- NUSE(Pset,type='stats') 
+NUSE_median <- data.frame(NUSE_median)
+NUSE_median <- NUSE_median[-c(2),]
+NUSE_median <- as.numeric(NUSE_median[1,])
+hist(NUSE_median)
+```
+
+
+## Grab columns for combat batch correction and perform correction
+
+```{r 5}
+proj_metadata <- read.csv('proj_metadata.csv', header = TRUE, stringsAsFactors = FALSE)
+
+data_norm <- exprs(data_norm)
+batch <- proj_metadata$normalizationcombatbatch
+mod <- model.matrix(~proj_metadata$normalizationcombatmod)
+
+Combat_data <- ComBat(dat = data_norm, batch=batch, mod=mod)
+#write.csv(Combat_data, "expression_values.csv")
+```
+
+## Scale and center combat, do PCA
+
+```{r 6}
+Combat_data_t <- t(Combat_data)
+Combat_data_t <- scale(Combat_data_t)
+Combat_data <- t(Combat_data_t)
+pca <- prcomp(Combat_data, scale = FALSE, center = FALSE)
+summary(pca)
+```
+
+## Plot PCA
+
+```{r 7}
+pca_r <- as.data.frame(pca$rotation)
+ggplot(data = pca_r, mapping = aes(x = PC1, y = PC2)) +
+  geom_point()+
+  theme_bw() +
+  labs(title = 'PCA plot', x= 'PC1 11.47%', y='PC2 8.409%')
+```
+## Identify outliers present in PCA1 and 2 that are greater than 3 STDs
+
+
+```{r 8}
+ggplot(data = pca_r, mapping = aes( y = PC2)) +
+  geom_boxplot()+
+  theme_bw() +
+  labs(title = 'PCA2 Histogram')
+
+ggplot(data = pca_r, mapping = aes( y = PC1)) +
+  geom_boxplot()+
+  theme_bw() +
+  labs(title = 'PCA1 Histogram')
+
+
+id <- which(!(pca_r$PC1 > mean(pca_r$PC1) + 3*sd(pca_r$PC1) | pca_r$PC1 < mean(pca_r$PC1) - 3*sd(pca_r$PC1) |
+                      pca_r$PC2 > mean(pca_r$PC2) + 3*sd(pca_r$PC2)| pca_r$PC2 < mean(pca_r$PC2) - 3*sd(pca_r$PC2)))
+Combat_data.filtered <- Combat_data[,id]
+dim(Combat_data.filtered)
+#write
+
+
+```
+## Perform PCA on data without outliers
+```{r 8}
+
+pca2 <- prcomp(Combat_data.filtered, scale = FALSE, center = FALSE)
+(summary(pca2))
+```
+## Graph new PCA without outliers
+
+```{r 9}
+
+pca_r2 <- as.data.frame(pca2$rotation)
+ggplot(data = pca_r2, mapping = aes(x = PC1, y = PC2)) +
+  geom_point()+
+  theme_bw() +
+  labs(title = 'PCA plot', x= 'PC1 11.89%', y='PC2 8.60%')
+
+```
+
+```{r 10}
+dim(Combat_data)
+dim(Combat_data.filtered)
+```
