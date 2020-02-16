@@ -1,0 +1,55 @@
+---
+title: "4.Noise filtering & dimensionality reduction"
+author: "yueh-ting"
+date: "2020/2/15"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Load data
+```{r}
+df <- read.csv("expression_values.csv",row.names = 1)
+```
+
+##1st filter: if prop of {value > log2(15)} < 20% then drop 
+# 1 step result, 39661
+```{r}
+stage1 <- c()
+for (i in 1:dim(df)[1]){
+  stage1[i] <- sum(df[i,] > log2(15)) / dim(df)[2]}
+s1_ind <- which(stage1 >= 0.2)
+df1 <- df[s1_ind,]
+```
+
+## 2nd filter: perform one tail 
+#chi-squared test for variance significantly different from the median variance of all probe set
+#2nd result 15508
+```{r}
+p = 0.01
+median_var <- median(apply(df1,1,var))
+each_gene_var = apply(df1,1,var)
+select4 <- 133*(each_gene_var/median_var) >qchisq(0.99,133)
+new_one<- df1[select4,]
+```
+
+##3nd Filter using CV
+#3nd result get 1531 genges
+```{r}
+new_CV <- apply(new_one,1,sd) / apply(new_one,1,mean)
+new_stage3 <- new_one[new_CV > 0.186,]
+
+```
+
+##Write as a file
+```{r}
+
+write.csv(new_stage3,"newpass_gene.csv")
+```
+
