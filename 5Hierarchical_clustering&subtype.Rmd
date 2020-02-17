@@ -1,0 +1,78 @@
+---
+title: "5.Hierarchical clustering & subtype discovery"
+author: "yueh-ting"
+date: "2020/2/15"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+##1531 gene from step4
+#use the file from step4,"newpass_gene.csv", and make the dataframe
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+df <- read.csv("newpass_gene.csv", row.names=1)
+require(data.table)
+rdf <- transpose(df)
+```
+
+#do the cluster
+use euclidean & Ward method to cluster, here I use the most common way.
+and I got 57 for one cluster, 77 for another cluster
+```{r}
+D <- dist(rdf,method = 'euclidean')
+hclu_res <- hclust(D,method = "ward.D2")
+clusterCut <- cutree(hclu_res, 2)
+sum(clusterCut == 1)
+sum(clusterCut == 2)
+```
+
+## use the proj_metadata.csv to pair the C3 data
+include the other file to get the name.
+```{r ,include=FALSE}
+proj_metadata <- read.csv("proj_metadata.csv")
+match_pair <- proj_metadata$geo_accession
+match <- c()
+for (i in 1:dim(df)[2]){
+  match[i] <- substr(colnames(df)[i],1,9)
+}
+match <- as.factor(match)
+match == match_pair
+```
+
+# column specific color and do the heat map
+
+```{r}
+color = ifelse(proj_metadata$cit.coloncancermolecularsubtype == 'C3','red','blue')
+heatmap(as.matrix(df),ColSideColors = color)
+```
+
+# seperate G1&G2 to Group1 and Group2 for later to do the t test
+```{r}
+G1 <- df[,which(clusterCut == 1)]
+G2 <- df[,which(clusterCut == 2)]
+```
+
+# Welth t test (two group variance are not equal and unknown)
+#Here I add the 5th column to count the adjust-pvalue that less than 0.05
+#use a for loop to go through each value
+
+```{r}
+Gtable <- matrix(0,ncol=5,nrow=dim(df)[1])
+for (i in 1:dim(df)[1]){
+  res <- t.test(G1[i,],G2[i,])
+  p_adj <- p.adjust(res$p.value,method = 'fdr',n = dim(df)[1])
+  Bool <- ifelse(p_adj < 0.05,1,0)
+  Gtable[i,] <- c(row.names(df)[i],as.numeric(res$statistic),res$p.value,p_adj,Bool)}
+
+```
+
+#store the file that pass the 0.05, there are 1012 genes
+```{r}
+Final <- Gtable[which(Gtable[,5] == 1),]
+write.csv(Final,"5-3_pass.csv")
+#store the file that have all the gene
+write.csv(Gtable[,],"5-4_All_list.csv") 
+rankfinal<- Final[order(as.numeric(Final[,4])), ]
+write.csv(rankfinal, "rank_adjustpvalue.csv")
+```{r}
