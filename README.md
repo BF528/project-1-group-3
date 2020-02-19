@@ -1,6 +1,6 @@
 # Project Description
 
-Description last updated 02/07/2020.  
+Description last updated 02/18/2020.  
 
 This repository contains the scripts necessary to complete Project 1 in BF528 at Boston University. 
 
