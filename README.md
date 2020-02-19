@@ -12,6 +12,4 @@ Analyst: Yueh-Ting Wang (@yuehcode)
 
 # Repository Contents
 
-Provide a brief description of each script/code file in this repo, what it does, and how to execute it  
-
-This is TBD as we are unsure how much of this repository will be used at the moment.  
+The repository has all of our code needed to finish the tasks assigned to us for Project 1, along with the final report. 
