@@ -8,10 +8,10 @@ output:
     df_print: paged
 ---
 ##1531 gene from step4
-#use the file from step4,"newpass_gene.csv", and make the dataframe
+#use the file from step4,"filtered_results.csv", and make the dataframe
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-df <- read.csv("newpass_gene.csv", row.names=1)
+df <- read.csv("filtered_results.csv", row.names=1)
 require(data.table)
 rdf <- transpose(df)
 ```
@@ -72,7 +72,7 @@ for (i in 1:dim(df)[1]){
 Final <- Gtable[which(Gtable[,5] == 1),]
 write.csv(Final,"5-3_pass.csv")
 #store the file that have all the gene
-write.csv(Gtable[,],"5-4_All_list.csv") 
+write.csv(Gtable[,],"welch_t-test.csv") 
 rankfinal<- Final[order(as.numeric(Final[,4])), ]
 write.csv(rankfinal, "rank_adjustpvalue.csv")
 ```{r}

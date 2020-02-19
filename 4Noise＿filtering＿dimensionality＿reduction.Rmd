@@ -50,6 +50,6 @@ new_stage3 <- new_one[new_CV > 0.186,]
 ##Write as a file
 ```{r}
 
-write.csv(new_stage3,"newpass_gene.csv")
+write.csv(new_stage3,"filtered_results.csv")
 ```
 
